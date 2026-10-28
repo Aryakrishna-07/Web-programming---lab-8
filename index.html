@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tell us about you</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="slide">
+  <span class="star" style="top:18px;left:22px">★</span>
+  <span class="star" style="top:46px;left:58px;font-size:18px">★</span>
+  <section>
+    <h1 class="script">Hello, you.</h1>
+    <p class="lede">Fill in your details and we'll <i>show them back</i> on your own card.</p>
+    <span class="pill">Takes about a minute</span>
+  </section>
+
+  <form class="paper" id="profileForm" novalidate>
+    <div class="f">
+      <label for="name">Full name</label>
+      <input id="name" name="name" type="text" autocomplete="name" required>
+      <div class="err" data-for="name"></div>
+    </div>
+
+    <fieldset>
+      <legend>Gender</legend>
+      <div class="radios">
+        <label><input type="radio" name="gender" value="Female"> Female</label>
+        <label><input type="radio" name="gender" value="Male"> Male</label>
+        <label><input type="radio" name="gender" value="Non-binary"> Non-binary</label>
+        <label><input type="radio" name="gender" value="Prefer not to say"> Prefer not to say</label>
+      </div>
+      <div class="err" data-for="gender"></div>
+    </fieldset>
+
+    <div class="row">
+      <div class="f">
+        <label for="mobile">Mobile number</label>
+        <input id="mobile" name="mobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="10 digits">
+        <div class="err" data-for="mobile"></div>
+      </div>
+      <div class="f">
+        <label for="email">Email id</label>
+        <input id="email" name="email" type="email" autocomplete="email">
+        <div class="err" data-for="email"></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="f">
+        <label for="city">City</label>
+        <input id="city" name="city" type="text" autocomplete="address-level2">
+        <div class="err" data-for="city"></div>
+      </div>
+      <div class="f">
+        <label for="state">State</label>
+        <input id="state" name="state" type="text" autocomplete="address-level1">
+        <div class="err" data-for="state"></div>
+      </div>
+    </div>
+
+    <div class="f">
+      <label for="country">Country</label>
+      <select id="country" name="country">
+        <option value="">Choose a country</option>
+        <option>India</option><option>United States</option><option>United Kingdom</option>
+        <option>Canada</option><option>Australia</option><option>Singapore</option>
+        <option>United Arab Emirates</option><option>Germany</option><option>Other</option>
+      </select>
+      <div class="err" data-for="country"></div>
+    </div>
+
+    <button class="btn" type="submit">Show my card</button>
+  </form>
+
+  <div class="footer"><span>@yourname</span><span>PROFILE FORM</span></div>
+</main>
+
+<script>
+const form = document.getElementById('profileForm');
+const rules = {
+  name:    v => v.trim().length >= 2 && /^[A-Za-z][A-Za-z .'-]*$/.test(v.trim()) || 'Enter your full name using letters only.',
+  gender:  v => !!v || 'Pick one option.',
+  mobile:  v => /^[6-9]\d{9}$/.test(v) || 'Enter a 10-digit mobile number starting with 6, 7, 8 or 9.',
+  email:   v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) || 'Enter an email like name@example.com.',
+  city:    v => v.trim().length >= 2 || 'Enter your city.',
+  state:   v => v.trim().length >= 2 || 'Enter your state.',
+  country: v => !!v || 'Choose your country.'
+};
+function value(name){
+  if (name === 'gender') { const r = form.querySelector('input[name=gender]:checked'); return r ? r.value : ''; }
+  return form.elements[name].value;
+}
+function check(name){
+  const res = rules[name](value(name));
+  const msg = res === true ? '' : res;
+  form.querySelector('[data-for="' + name + '"]').textContent = msg;
+  const el = form.elements[name];
+  if (el && el.classList) el.classList.toggle('invalid', !!msg);
+  return !msg;
+}
+form.elements.mobile.addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, ''); });
+Object.keys(rules).forEach(n => {
+  const el = form.elements[n];
+  (el.length !== undefined && !el.tagName ? Array.from(el) : [el]).forEach(x => x.addEventListener('change', () => check(n)));
+});
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const ok = Object.keys(rules).map(check).every(Boolean);
+  if (!ok) { form.querySelector('.invalid, .err:not(:empty)')?.scrollIntoView({block:'center'}); return; }
+  const data = {};
+  Object.keys(rules).forEach(n => data[n] = value(n).trim());
+  try { localStorage.setItem('profileData', JSON.stringify(data)); }
+  catch (_) { sessionStorage.setItem('profileData', JSON.stringify(data)); }
+  window.location.href = 'display.html';
+});
+</script>
+</body>
+</html>

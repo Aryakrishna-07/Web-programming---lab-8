@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your card</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="slide dark">
+  <span class="star" style="top:18px;right:26px">★</span>
+  <section>
+    <h1 class="script" id="greeting">Hello.</h1>
+    <p class="lede" id="lede">Here's what you <i>told us</i>.</p>
+    <div class="actions">
+      <a class="btn ghost" href="index.html">Edit details</a>
+      <button class="btn" id="clear" type="button">Clear</button>
+    </div>
+  </section>
+
+  <article class="card" id="card" aria-live="polite">
+    <h2 id="cName"></h2>
+    <dl id="list"></dl>
+  </article>
+
+  <div class="footer"><span>@yourname</span><span>PROFILE CARD</span></div>
+</main>
+
+<script>
+const labels = [['gender','Gender'],['mobile','Mobile'],['email','Email id'],['city','City'],['state','State'],['country','Country']];
+function load(){
+  try { return JSON.parse(localStorage.getItem('profileData') || sessionStorage.getItem('profileData')); }
+  catch (_) { return null; }
+}
+function render(){
+  const d = load();
+  const card = document.getElementById('card');
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  if (!d) {
+    document.getElementById('greeting').textContent = 'Nothing yet.';
+    document.getElementById('lede').textContent = 'Fill in the form and your card will appear here.';
+    document.getElementById('cName').textContent = 'No details saved';
+    document.getElementById('clear').hidden = true;
+    const a = document.querySelector('.actions a'); a.textContent = 'Go to the form';
+    return;
+  }
+  document.getElementById('greeting').textContent = 'Hi, ' + d.name.split(' ')[0] + '.';
+  document.getElementById('cName').textContent = d.name;
+  labels.forEach(([k, l]) => {
+    const dt = document.createElement('dt'); dt.textContent = l;
+    const dd = document.createElement('dd'); dd.textContent = d[k];
+    list.append(dt, dd);
+  });
+}
+document.getElementById('clear').addEventListener('click', () => {
+  try { localStorage.removeItem('profileData'); sessionStorage.removeItem('profileData'); } catch (_) {}
+  render();
+});
+render();
+</script>
+</body>
+</html>
